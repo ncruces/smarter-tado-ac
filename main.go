@@ -21,8 +21,6 @@ type TadoConfig struct {
 	Password string `json:"password"`
 }
 
-const deltaT = 15 * time.Minute
-
 func main() {
 	ctx := makeContext()
 
@@ -61,7 +59,7 @@ func (ctx *TadoContext) smartZone(home TadoHome, zone TadoZone) error {
 		return err
 	}
 
-	if expiry := state.Overlay.Termination.ProjectedExpiry; expiry != nil && expiry.After(ctx.time.Add(15*time.Minute)) {
+	if expiry := state.Overlay.Termination.ProjectedExpiry; expiry != nil && expiry.After(ctx.time.Add(10*time.Minute)) {
 		fmt.Print("manual mode\n")
 		return nil
 	}
@@ -71,7 +69,7 @@ func (ctx *TadoContext) smartZone(home TadoHome, zone TadoZone) error {
 		return err
 	}
 
-	block, err := ctx.getTadoTimetableBlock(home, zone, timetable, ctx.time.Add(10*time.Minute))
+	block, err := ctx.getTadoTimetableBlock(home, zone, timetable, ctx.time.Add(5*time.Minute))
 	if err != nil {
 		return err
 	}
@@ -115,12 +113,12 @@ func (ctx *TadoContext) smartCool(home TadoHome, zone TadoZone, state TadoZoneSt
 	if curTemp < tgtTemp+0.5 {
 		if curPower == "OFF" {
 			fmt.Printf("cooling stay off: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
-			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay())
+			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(10*time.Minute))
 			return err
 		}
 		if curTemp < tgtTemp-1 {
 			fmt.Printf("cooling turn off: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
-			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay())
+			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(15*time.Minute))
 			return err
 		}
 	}
@@ -129,13 +127,13 @@ func (ctx *TadoContext) smartCool(home TadoHome, zone TadoZone, state TadoZoneSt
 		if curTemp > tgtTemp+4 {
 			target.FanSpeed = "HIGH"
 			fmt.Printf("cooling boost high: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
-			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target))
+			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target, 10*time.Minute))
 			return err
 		}
 		if curTemp > tgtTemp+2 {
 			target.FanSpeed = "MIDDLE"
 			fmt.Printf("cooling boost: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
-			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target))
+			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target, 10*time.Minute))
 			return err
 		}
 	}
@@ -155,12 +153,12 @@ func (ctx *TadoContext) smartHeat(home TadoHome, zone TadoZone, state TadoZoneSt
 	if curTemp > tgtTemp-0.5 {
 		if curPower == "OFF" {
 			fmt.Printf("heating stay off: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
-			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay())
+			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(10*time.Minute))
 			return err
 		}
 		if curTemp > tgtTemp+1 {
 			fmt.Printf("heating turn off: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
-			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay())
+			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(15*time.Minute))
 			return err
 		}
 	}
@@ -169,13 +167,13 @@ func (ctx *TadoContext) smartHeat(home TadoHome, zone TadoZone, state TadoZoneSt
 		if curTemp < tgtTemp-4 {
 			target.FanSpeed = "HIGH"
 			fmt.Printf("heating boost high: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
-			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target))
+			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target, 10*time.Minute))
 			return err
 		}
 		if curTemp < tgtTemp-2 {
 			target.FanSpeed = "MIDDLE"
 			fmt.Printf("heating boost: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
-			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target))
+			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target, 10*time.Minute))
 			return err
 		}
 	}
@@ -191,12 +189,12 @@ func (ctx *TadoContext) smartDry(home TadoHome, zone TadoZone, state TadoZoneSta
 	if 0 < curRH && curRH < 50 {
 		if curPower == "OFF" {
 			fmt.Printf("drying stay off: (rh=%v%%)\n", curRH)
-			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay())
+			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(10*time.Minute))
 			return err
 		}
 		if curRH < 40 {
 			fmt.Printf("drying turn off: (rh=%v%%)\n", curRH)
-			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay())
+			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(15*time.Minute))
 			return err
 		}
 	}
@@ -257,15 +255,15 @@ func makeContext() TadoContext {
 	}
 }
 
-func makeOffOverlay() TadoOverlay {
-	return makeOverlay(TadoSetting{Type: "AIR_CONDITIONING", Power: "OFF"})
+func makeOffOverlay(duration time.Duration) TadoOverlay {
+	return makeOverlay(TadoSetting{Type: "AIR_CONDITIONING", Power: "OFF"}, duration)
 }
 
-func makeOverlay(setting TadoSetting) TadoOverlay {
+func makeOverlay(setting TadoSetting, duration time.Duration) TadoOverlay {
 	overlay := TadoOverlay{
 		Setting:     setting,
 		Termination: TadoTermination{Type: "TIMER"},
 	}
-	overlay.Termination.DurationInSeconds = 15 * 60
+	overlay.Termination.DurationInSeconds = int(duration / time.Second)
 	return overlay
 }

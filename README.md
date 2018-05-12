@@ -46,8 +46,8 @@ You’re supposed configure your tado° username/password in the [config.json](c
 Then, every 2-5min, this logs into tado° using the “beta” API partially documented [here](http://blog.scphillips.com/posts/2017/01/the-tado-api-v2/), reads status and settings for each of your AC zones, and decides if any action should be taken.
 
 There are only two actions that this application might take for a zone:
-1. turn off your AC, if it finds it is already too cold/hot for it to run. 
-2. boost your fan speed, if it is set to auto and temperature is too hot/cold.
+1. turn off your AC, if it finds it is already too cold/dry/hot for it to run. 
+2. boost your fan speed, if it is set to auto and temperature is still too hot/cold.
 
 It never messes with the temperature or any other settings of your AC.
 
@@ -55,14 +55,14 @@ It never messes with the temperature or any other settings of your AC.
 
 Imagine this spring/summer you setup your AC through tado° for cooling, with auto fan speed at 24°C. You are not using “thermostatic” mode.
 
-So, today, it’s cloudy outside, and the temperature isn’t that high inside: it’s actually 24°C this morning. This would be a day you would never, yourself, turn your AC on. But because it’s in the schedule, “non-thermostatic” mode will turn on your AC. Your AC won’t do much, but it’s annoying that it turns on at all. This app prevents this from happening: if the measured temperature is close enough to your desired setting, the AC is preemptively kept off.
+So, today, it’s cloudy outside, and the temperature isn’t that high inside: it’s actually 24°C this morning. This would be a day you would never, yourself, turn your AC on. But because it’s in the schedule, “non-thermostatic” mode will turn on your AC. Your AC won’t do much, but it’s annoying that it turns on at all. This app prevents it from happening: if the measured temperature is close enough to your desired setting, the AC is preemptively kept off.
 
 Further into summer, when it’s actually hot, your AC turns on, and cools the room down. But then the sun sets, and it’s now much cooler outside. So the AC eventually overshoots your set temperature: it’s now 23°C inside and it’s not getting any hotter. This app will turn off your AC for at least 15min if your set temperature is overshot.
 
-But let’s say you have a big room, and it’s getting really hot. Near the AC unit it’s cool enough, but in the middle of the room where your thermostat is placed it’s still hot (more than 2°C over your set temperature). This app will manually boost fan speed to compensate.
+But let’s say you have a big room, and it’s getting really hot. Near the AC unit it’s cool enough, but in the middle of the room where your thermostat is placed it’s still hot (more than 2°C over your set temperature). This app will manually boost fan speed to help the AC cool the entire room.
 
 ### Conclusion
 
 All these actions are meant to save power and actually improve efficiency, something “thermostatic” mode IMHO fails to do for more modern inverter type ACs. It would, obviously, be much better if tado° implemented something closer to this themselves. Again, hopefully, this inspires them to improve.
 
-All that said, this has been working successfully in my own home throughout this fall/winter, and early spring. I have 3 ACs and thermostats in 3 different rooms. Now that it’s getting hotter, the ACs hardly ever turn on (heating mode). I finally reached the goal of a “set it and forget it” that works sensibly 90% of the time. I now expect to have to change settings only twice a year (for the hot/cold seasons).
+All that said, this has been working successfully in my own home throughout this fall/winter, and early spring. I have 3 ACs and thermostats in 3 different rooms. Now that it’s getting hotter, the ACs hardly ever turn on (in heating mode). I finally reached the goal of a “set it and forget it” that works sensibly 90% of the time. I now expect to have to change settings only twice a year (for the hot/cold seasons).

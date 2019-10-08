@@ -1,7 +1,6 @@
 package main
 
 import (
-	"4d63.com/tz"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -10,6 +9,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"4d63.com/tz"
 )
 
 func (ctx *TadoContext) tadoGet(url string) ([]byte, error) {

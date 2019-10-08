@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"golang.org/x/oauth2"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
+
+	"golang.org/x/oauth2"
 )
 
 type TadoContext struct {
@@ -116,7 +117,7 @@ func (ctx *TadoContext) smartCool(home TadoHome, zone TadoZone, state TadoZoneSt
 			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(10*time.Minute))
 			return err
 		}
-		if curTemp < tgtTemp-1 {
+		if curTemp < tgtTemp-0.5 {
 			fmt.Printf("cooling turn off: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
 			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(15*time.Minute))
 			return err
@@ -156,7 +157,7 @@ func (ctx *TadoContext) smartHeat(home TadoHome, zone TadoZone, state TadoZoneSt
 			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(10*time.Minute))
 			return err
 		}
-		if curTemp > tgtTemp+1 {
+		if curTemp > tgtTemp+0.5 {
 			fmt.Printf("heating turn off: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
 			_, err := ctx.putTadoOverlay(home, zone, makeOffOverlay(15*time.Minute))
 			return err

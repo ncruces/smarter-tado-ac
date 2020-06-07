@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -27,18 +29,18 @@ func main() {
 
 	acc, err := ctx.getTadoAccount()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	for _, home := range acc.Homes {
 		home, err = ctx.getTadoHome(home.ID)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		zones, err := ctx.getTadoZones(home)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		fmt.Printf("%s...\n", home.Name)
@@ -47,7 +49,7 @@ func main() {
 				fmt.Printf("%s, ", zone.Name)
 				err = ctx.smartZone(home, zone)
 				if err != nil {
-					panic(err)
+					log.Fatal(err)
 				}
 			}
 		}
@@ -205,17 +207,16 @@ func (ctx *TadoContext) smartDry(home TadoHome, zone TadoZone, state TadoZoneSta
 }
 
 func makeContext() TadoContext {
-	file, err := os.Open("config.json")
-
+	path := filepath.Join(filepath.Dir(os.Args[0]), "config.json")
+	file, err := os.Open(path)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-
 	defer file.Close()
 
 	var config TadoConfig
 	if err := json.NewDecoder(file).Decode(&config); err != nil {
-		panic(fmt.Sprintf("Decode config.json: %s", err))
+		log.Fatalf("Decode config.json: %s", err)
 	}
 
 	res, err := http.PostForm("https://auth.tado.com/oauth/token", url.Values{
@@ -228,13 +229,13 @@ func makeContext() TadoContext {
 	})
 
 	if err != nil {
-		panic(fmt.Sprintf("POST /oauth/token: %v", err))
+		log.Fatalf("POST /oauth/token: %v", err)
 	}
 
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		panic(fmt.Sprintf("POST /oauth/token: %s", http.StatusText(res.StatusCode)))
+		log.Fatalf("POST /oauth/token: %s", http.StatusText(res.StatusCode))
 	}
 
 	var token *oauth2.Token

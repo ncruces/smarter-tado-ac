@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-
-	"4d63.com/tz"
 )
 
 func (ctx *TadoContext) tadoGet(url string) ([]byte, error) {
@@ -126,7 +124,7 @@ func (ctx *TadoContext) getTadoActiveTimetable(home TadoHome, zone TadoZone) (re
 }
 
 func (ctx *TadoContext) getTadoTimetableBlock(home TadoHome, zone TadoZone, timetable TadoActiveTimetable, instant time.Time) (ret TadoTimetableBlock, err error) {
-	loc, err := tz.LoadLocation(home.DateTimeZone)
+	loc, err := time.LoadLocation(home.DateTimeZone)
 	if err != nil {
 		err = fmt.Errorf("Invalid home.DateTimeZone: %v", home.DateTimeZone)
 		return

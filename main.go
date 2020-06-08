@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -219,41 +218,28 @@ func makeContext() TadoContext {
 		log.Fatalf("Decode config.json: %s", err)
 	}
 
-	res, err := http.PostForm("https://auth.tado.com/oauth/token", url.Values{
-		"client_id":     {"public-api-preview"},
-		"client_secret": {"4HJGRffVR8xb3XdEUQpjgZ1VplJi6Xgw"},
-		"username":      {config.Username},
-		"password":      {config.Password},
-		"grant_type":    {"password"},
-		"scope":         {"home.user"},
-	})
-
-	if err != nil {
-		log.Fatalf("POST /oauth/token: %v", err)
-	}
-
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		log.Fatalf("POST /oauth/token: %s", http.StatusText(res.StatusCode))
-	}
-
-	var token *oauth2.Token
-	if err := json.NewDecoder(res.Body).Decode(&token); err != nil {
-		panic(fmt.Sprintf("Decode /oauth/token: %s", err))
-	}
-
-	conf := &oauth2.Config{
+	oauth := &oauth2.Config{
 		ClientID:     "public-api-preview",
 		ClientSecret: "4HJGRffVR8xb3XdEUQpjgZ1VplJi6Xgw",
+		Scopes:       []string{"home.user"},
 		Endpoint: oauth2.Endpoint{
 			TokenURL: "https://auth.tado.com/oauth/token",
 		},
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	token, err := oauth.PasswordCredentialsToken(ctx, config.Username, config.Password)
+	if err != nil {
+		log.Fatalf("PasswordCredentialsToken: %v", err)
+	}
+
+	client := oauth.Client(ctx, token)
+	client.Timeout = 5 * time.Second
 	return TadoContext{
-		tado: conf.Client(context.Background(), token),
 		time: time.Now(),
+		tado: client,
 	}
 }
 

@@ -125,14 +125,14 @@ func (ctx *TadoContext) smartCool(home TadoHome, zone TadoZone, state TadoZoneSt
 		}
 	}
 
-	if curMode == "COOL" && tgtPower == "ON" && tgtFan == "AUTO" {
-		if curTemp > tgtTemp+4 {
+	if curMode == "COOL" && tgtPower == "ON" {
+		if curTemp > tgtTemp+4 && (tgtFan == "AUTO" || tgtFan == "MIDDLE") {
 			target.FanSpeed = "HIGH"
 			fmt.Printf("cooling boost high: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
 			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target, 10*time.Minute))
 			return err
 		}
-		if curTemp > tgtTemp+2 {
+		if curTemp > tgtTemp+2 && (tgtFan == "AUTO" || tgtFan == "LOW") {
 			target.FanSpeed = "MIDDLE"
 			fmt.Printf("cooling boost: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
 			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target, 10*time.Minute))
@@ -165,14 +165,14 @@ func (ctx *TadoContext) smartHeat(home TadoHome, zone TadoZone, state TadoZoneSt
 		}
 	}
 
-	if curMode == "HEAT" && tgtPower == "ON" && tgtFan == "AUTO" {
-		if curTemp < tgtTemp-4 {
+	if curMode == "HEAT" && tgtPower == "ON" {
+		if curTemp < tgtTemp-4 && (tgtFan == "AUTO" || tgtFan == "MIDDLE") {
 			target.FanSpeed = "HIGH"
 			fmt.Printf("heating boost high: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
 			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target, 10*time.Minute))
 			return err
 		}
-		if curTemp < tgtTemp-2 {
+		if curTemp < tgtTemp-2 && (tgtFan == "AUTO" || tgtFan == "LOW") {
 			target.FanSpeed = "MIDDLE"
 			fmt.Printf("heating boost: (tgt=%v°C, cur=%v°C)\n", tgtTemp, curTemp)
 			_, err := ctx.putTadoOverlay(home, zone, makeOverlay(target, 10*time.Minute))

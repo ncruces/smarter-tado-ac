@@ -31,12 +31,12 @@ func (ctx *TadoContext) getTadoAccount() (ret TadoAccount, err error) {
 	buf, err := ctx.tadoGet("https://my.tado.com/api/v2/me")
 
 	if err != nil {
-		err = fmt.Errorf("GET /api/v2/me: %v", err)
+		err = fmt.Errorf("GET /api/v2/me: %w", err)
 		return
 	}
 
 	if err = json.Unmarshal(buf, &ret); err != nil {
-		err = fmt.Errorf("Decode /api/v2/me: %v", err)
+		err = fmt.Errorf("decode /api/v2/me: %w", err)
 		return
 	}
 
@@ -47,12 +47,12 @@ func (ctx *TadoContext) getTadoHome(id int) (ret TadoHome, err error) {
 	buf, err := ctx.tadoGet("https://my.tado.com/api/v2/homes/" + strconv.Itoa(id))
 
 	if err != nil {
-		err = fmt.Errorf("GET /api/v2/homes/[home]: %v", err)
+		err = fmt.Errorf("GET /api/v2/homes/[home]: %w", err)
 		return
 	}
 
 	if err = json.Unmarshal(buf, &ret); err != nil {
-		err = fmt.Errorf("Decode /api/v2/homes/[home]: %v", err)
+		err = fmt.Errorf("decode /api/v2/homes/[home]: %w", err)
 		return
 	}
 
@@ -63,12 +63,12 @@ func (ctx *TadoContext) getTadoZones(home TadoHome) (ret []TadoZone, err error) 
 	buf, err := ctx.tadoGet("https://my.tado.com/api/v2/homes/" + strconv.Itoa(home.ID) + "/zones")
 
 	if err != nil {
-		err = fmt.Errorf("GET /api/v2/homes/[home]/zones: %v", err)
+		err = fmt.Errorf("GET /api/v2/homes/[home]/zones: %w", err)
 		return
 	}
 
 	if err = json.Unmarshal(buf, &ret); err != nil {
-		err = fmt.Errorf("Decode /api/v2/homes/[home]/zones: %v", err)
+		err = fmt.Errorf("decode /api/v2/homes/[home]/zones: %w", err)
 		return
 	}
 
@@ -79,12 +79,12 @@ func (ctx *TadoContext) getTadoZoneState(home TadoHome, zone TadoZone) (ret Tado
 	buf, err := ctx.tadoGet("https://my.tado.com/api/v2/homes/" + strconv.Itoa(home.ID) + "/zones/" + strconv.Itoa(zone.ID) + "/state")
 
 	if err != nil {
-		err = fmt.Errorf("GET /api/v2/homes/[home]/zones/[zone]/state: %v", err)
+		err = fmt.Errorf("GET /api/v2/homes/[home]/zones/[zone]/state: %w", err)
 		return
 	}
 
 	if err = json.Unmarshal(buf, &ret); err != nil {
-		err = fmt.Errorf("Decode /api/v2/homes/[home]/zones/[zone]/state: %v", err)
+		err = fmt.Errorf("decode /api/v2/homes/[home]/zones/[zone]/state: %w", err)
 		return
 	}
 
@@ -95,12 +95,12 @@ func (ctx *TadoContext) getTadoAwayConfiguration(home TadoHome, zone TadoZone) (
 	buf, err := ctx.tadoGet("https://my.tado.com/api/v2/homes/" + strconv.Itoa(home.ID) + "/zones/" + strconv.Itoa(zone.ID) + "/awayConfiguration")
 
 	if err != nil {
-		err = fmt.Errorf("GET /api/v2/homes/[home]/zones/[zone]/awayConfiguration: %v", err)
+		err = fmt.Errorf("GET /api/v2/homes/[home]/zones/[zone]/awayConfiguration: %w", err)
 		return
 	}
 
 	if err = json.Unmarshal(buf, &ret); err != nil {
-		err = fmt.Errorf("Decode /api/v2/homes/[home]/zones/[zone]/awayConfiguration: %v", err)
+		err = fmt.Errorf("decode /api/v2/homes/[home]/zones/[zone]/awayConfiguration: %w", err)
 		return
 	}
 
@@ -111,12 +111,12 @@ func (ctx *TadoContext) getTadoActiveTimetable(home TadoHome, zone TadoZone) (re
 	buf, err := ctx.tadoGet("https://my.tado.com/api/v2/homes/" + strconv.Itoa(home.ID) + "/zones/" + strconv.Itoa(zone.ID) + "/schedule/activeTimetable")
 
 	if err != nil {
-		err = fmt.Errorf("GET /api/v2/homes/[home]/zones/[zone]/schedule/activeTimetable: %v", err)
+		err = fmt.Errorf("GET /api/v2/homes/[home]/zones/[zone]/schedule/activeTimetable: %w", err)
 		return
 	}
 
 	if err = json.Unmarshal(buf, &ret); err != nil {
-		err = fmt.Errorf("Decode /api/v2/homes/[home]/zones/[zone]/schedule/activeTimetable: %v", err)
+		err = fmt.Errorf("decode /api/v2/homes/[home]/zones/[zone]/schedule/activeTimetable: %w", err)
 		return
 	}
 
@@ -126,7 +126,7 @@ func (ctx *TadoContext) getTadoActiveTimetable(home TadoHome, zone TadoZone) (re
 func (ctx *TadoContext) getTadoTimetableBlock(home TadoHome, zone TadoZone, timetable TadoActiveTimetable, instant time.Time) (ret TadoTimetableBlock, err error) {
 	loc, err := time.LoadLocation(home.DateTimeZone)
 	if err != nil {
-		err = fmt.Errorf("Invalid home.DateTimeZone: %v", home.DateTimeZone)
+		err = fmt.Errorf("invalid home.DateTimeZone: %s", home.DateTimeZone)
 		return
 	}
 
@@ -135,13 +135,13 @@ func (ctx *TadoContext) getTadoTimetableBlock(home TadoHome, zone TadoZone, time
 	buf, err := ctx.tadoGet("https://my.tado.com/api/v2/homes/" + strconv.Itoa(home.ID) + "/zones/" + strconv.Itoa(zone.ID) + "/schedule/timetables/" + strconv.Itoa(timetable.ID) + "/blocks/" + day)
 
 	if err != nil {
-		err = fmt.Errorf("GET /api/v2/homes/[home]/zones/[zone]/schedule/timetables/[timetable]/blocks/[day]: %v", err)
+		err = fmt.Errorf("GET /api/v2/homes/[home]/zones/[zone]/schedule/timetables/[timetable]/blocks/[day]: %w", err)
 		return
 	}
 
 	var blocks []TadoTimetableBlock
 	if err = json.Unmarshal(buf, &blocks); err != nil {
-		err = fmt.Errorf("Decode /api/v2/homes/[home]/zones/[zone]/schedule/timetables/[timetable]/blocks/[day]: %s", err)
+		err = fmt.Errorf("decode /api/v2/homes/[home]/zones/[zone]/schedule/timetables/[timetable]/blocks/[day]: %w", err)
 		return
 	}
 
@@ -166,13 +166,13 @@ func (ctx *TadoContext) putTadoOverlay(home TadoHome, zone TadoZone, overlay Tad
 
 	buf, err := json.Marshal(overlay)
 	if err != nil {
-		err = fmt.Errorf("Encode overlay: %v", err)
+		err = fmt.Errorf("encode overlay: %w", err)
 		return ret, err
 	}
 
 	req, err := http.NewRequest("PUT", "https://my.tado.com/api/v2/homes/"+strconv.Itoa(home.ID)+"/zones/"+strconv.Itoa(zone.ID)+"/overlay", bytes.NewReader(buf))
 	if err != nil {
-		err = fmt.Errorf("PUT /api/v2/homes/[home]/zones/[zone]/overlay: %v", err)
+		err = fmt.Errorf("PUT /api/v2/homes/[home]/zones/[zone]/overlay: %w", err)
 		return ret, err
 	}
 
@@ -180,7 +180,7 @@ func (ctx *TadoContext) putTadoOverlay(home TadoHome, zone TadoZone, overlay Tad
 	res, err := ctx.tado.Do(req)
 
 	if err != nil {
-		err = fmt.Errorf("PUT /api/v2/homes/[home]/zones/[zone]/overlay: %v", err)
+		err = fmt.Errorf("PUT /api/v2/homes/[home]/zones/[zone]/overlay: %w", err)
 		return ret, err
 	}
 
@@ -188,11 +188,11 @@ func (ctx *TadoContext) putTadoOverlay(home TadoHome, zone TadoZone, overlay Tad
 
 	if res.StatusCode != http.StatusOK {
 		err = fmt.Errorf("PUT /api/v2/homes/[home]/zones/[zone]/overlay: %s", http.StatusText(res.StatusCode))
-		return ret, errors.New(http.StatusText(res.StatusCode))
+		return ret, err
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(&ret); err != nil {
-		err = fmt.Errorf("Decode /api/v2/homes/[home]/zones/[zone]/overlay: %s", err)
+		err = fmt.Errorf("decode /api/v2/homes/[home]/zones/[zone]/overlay: %w", err)
 		return ret, err
 	}
 

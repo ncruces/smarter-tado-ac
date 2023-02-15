@@ -86,6 +86,7 @@ type TadoSetting struct {
 	Power       string           `json:"power,omitempty"`
 	Mode        string           `json:"mode,omitempty"`
 	FanSpeed    string           `json:"fanSpeed,omitempty"`
+	Swing       string           `json:"swing,omitempty"`
 	Temperature *TadoTemperature `json:"temperature,omitempty"`
 }
 

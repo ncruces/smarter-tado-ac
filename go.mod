@@ -1,9 +1,11 @@
 module github.com/ncruces/smarter-tado-ac
 
-go 1.14
+go 1.21
+
+require golang.org/x/oauth2 v0.13.0
 
 require (
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/oauth2 v0.5.0
-	google.golang.org/protobuf v1.28.1 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
+	google.golang.org/appengine v1.6.8 // indirect
+	google.golang.org/protobuf v1.31.0 // indirect
 )
